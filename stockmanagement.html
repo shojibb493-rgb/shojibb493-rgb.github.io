@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>সবুজ মেডিকেল হল - খুচরা ইনভেন্টরি</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { margin: 0; display: flex; background-color: #f4f7f6; color: #333; }
+        
+        .sidebar { width: 260px; background-color: #2e7d32; color: white; height: 100vh; padding: 20px; position: fixed; }
+        .sidebar h2 { border-bottom: 2px solid #4caf50; padding-bottom: 10px; margin-top: 0; font-size: 1.5rem; text-align: center; }
+        
+        .main-content { margin-left: 260px; padding: 30px; width: calc(100% - 260px); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        .add-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+        .add-section div { flex: 1; min-width: 120px; display: flex; flex-direction: column; }
+        .add-section label { font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; color: #555; }
+        .add-section input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+        
+        .btn { background-color: #4caf50; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; height: 40px; }
+        .btn:hover { background-color: #388e3c; }
+
+        .search-container { background: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .search-container input { width: 100%; padding: 12px; border: 2px solid #4caf50; border-radius: 6px; font-size: 1.1rem; outline: none; }
+        
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #e8f5e9; color: #2e7d32; }
+        
+        .action-container { display: flex; gap: 5px; flex-wrap: wrap;}
+        .btn-sell-strip { background-color: #e53935; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold; }
+        .btn-sell-box { background-color: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold; }
+        .btn-add-stock { background-color: #1e88e5; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold; }
+        
+        .stock-count { font-weight: bold; color: #2e7d32; font-size: 1.1rem;}
+        .low-stock { color: #d32f2f; font-weight: bold; font-size: 1.1rem;}
+        .price-tag { color: #00796b; font-size: 0.9rem; background: #e0f2f1; padding: 3px 8px; border-radius: 12px; margin-top: 5px; display: inline-block; }
+        .loading-text { font-size: 1rem; color: #ff9800; font-weight: bold; display: none; margin-left: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>সবুজ মেডিকেল হল</h2>
+        <p style="text-align: center;">খুচরা বিক্রয় ও স্টক প্যানেল</p>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1 style="color: #2e7d32; margin: 0;">খুচরা স্টক ও মূল্য তালিকা</h1>
+            <span id="loadingIndicator" class="loading-text">⏳ গুগল শিটের সাথে আপডেট হচ্ছে...</span>
+        </div>
+
+        <div class="add-section">
+            <div style="flex: 2;">
+                <label>ওষুধের নাম:</label>
+                <input type="text" id="medName" placeholder="যেমন: Napa Extend">
+            </div>
+            <div>
+                <label>১ বক্সে কয় পাতা?</label>
+                <input type="number" id="stripsPerBox" placeholder="যেমন: 10" min="1" value="10">
+            </div>
+            <div>
+                <label>১ পাতার দাম (৳):</label>
+                <input type="number" id="medPrice" placeholder="যেমন: 15" min="0">
+            </div>
+            <div>
+                <label>যোগ করুন (বক্স):</label>
+                <input type="number" id="boxQty" placeholder="বক্স" min="0" value="0">
+            </div>
+            <div>
+                <label>যোগ করুন (পাতা):</label>
+                <input type="number" id="stripQty" placeholder="পাতা" min="0" value="0">
+            </div>
+            <button class="btn" onclick="addNewMedicine()">স্টকে যোগ করুন</button>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" onkeyup="searchMedicine()" placeholder="🔍 ওষুধের নাম লিখে খুঁজুন (যেমন: Napa)...">
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ওষুধের নাম</th>
+                    <th>প্যাকিং ও মূল্য</th>
+                    <th>বর্তমান মোট স্টক</th>
+                    <th>খুচরা বিক্রয় / রিস্টক</th>
+                </tr>
+            </thead>
+            <tbody id="stockTableBody">
+                <tr><td colspan="4" style="text-align: center;">ডাটা লোড হচ্ছে...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // আপনার নতুন গুগল অ্যাপস স্ক্রিপ্ট URL এখানে দিন
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxkoeCyylNMgSymBeQv2XW1in_zncBG_KsyVFsHCRjrbJxi8Ve9TZs5Xm08hB1yNmPBcg/exec'; 
+
+        async function loadData() {
+            document.getElementById('loadingIndicator').style.display = 'inline';
+            const tbody = document.getElementById('stockTableBody');
+            
+            try {
+                const response = await fetch(scriptURL);
+                const data = await response.json();
+                
+                tbody.innerHTML = '';
+                if(data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">কোনো স্টক পাওয়া যায়নি!</td></tr>';
+                } else {
+                    data.forEach((item) => {
+                        let totalStrips = parseInt(item.totalStrips) || 0;
+                        let stripsPerBox = parseInt(item.stripsPerBox) || 10;
+                        let pricePerStrip = parseFloat(item.price) || 0;
+                        let pricePerBox = pricePerStrip * stripsPerBox; // অটোমেটিক বক্সের দাম বের করা
+                        
+                        let displayBoxes = Math.floor(totalStrips / stripsPerBox);
+                        let displayStrips = totalStrips % stripsPerBox;
+                        
+                        let stockStyle = totalStrips <= (stripsPerBox * 2) ? "low-stock" : "stock-count";
+                        
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><b>${item.name}</b></td>
+                            <td>
+                                ${stripsPerBox} পাতা / বক্স<br>
+                                <span class="price-tag">৳${pricePerStrip} / পাতা | ৳${pricePerBox} / বক্স</span>
+                            </td>
+                            <td class="${stockStyle}">${displayBoxes} বক্স ${displayStrips} পাতা</td>
+                            <td>
+                                <div class="action-container">
+                                    <button class="btn-sell-strip" onclick="updateStock('${item.name}', 'strip', -1)">-১ পাতা</button>
+                                    <button class="btn-sell-box" onclick="updateStock('${item.name}', 'box', -1)">-১ বক্স</button>
+                                    <button class="btn-add-stock" style="background:#4caf50;" onclick="updateStock('${item.name}', 'strip', 1)">+১ পাতা</button>
+                                    <button class="btn-add-stock" onclick="updateStock('${item.name}', 'box', 1)">+১ বক্স</button>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">ডাটা লোড করা যায়নি। ইন্টারনেট চেক করুন!</td></tr>';
+            }
+            document.getElementById('loadingIndicator').style.display = 'none';
+        }
+
+        async function addNewMedicine() {
+            const name = document.getElementById('medName').value.trim();
+            const stripsPerBox = document.getElementById('stripsPerBox').value;
+            const price = document.getElementById('medPrice').value;
+            const boxQty = document.getElementById('boxQty').value;
+            const stripQty = document.getElementById('stripQty').value;
+
+            if(!name || stripsPerBox <= 0) {
+                alert("দয়া করে ওষুধের নাম এবং সঠিক প্যাকিং সংখ্যা দিন!"); return;
+            }
+
+            document.getElementById('loadingIndicator').style.display = 'inline';
+            
+            const url = `${scriptURL}?action=add&name=${encodeURIComponent(name)}&stripsPerBox=${stripsPerBox}&price=${price}&boxQty=${boxQty}&stripQty=${stripQty}`;
+            await fetch(url);
+            
+            document.getElementById('medName').value = '';
+            document.getElementById('medPrice').value = '';
+            document.getElementById('boxQty').value = '0';
+            document.getElementById('stripQty').value = '0';
+            document.getElementById('searchInput').value = ''; 
+            
+            loadData();
+        }
+
+        async function updateStock(name, unit, amount) {
+            document.getElementById('loadingIndicator').style.display = 'inline';
+            
+            const url = `${scriptURL}?action=update&name=${encodeURIComponent(name)}&unit=${unit}&amount=${amount}`;
+            await fetch(url);
+            
+            loadData();
+        }
+
+        function searchMedicine() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let table = document.getElementById('stockTableBody');
+            let tr = table.getElementsByTagName('tr');
+
+            for (let i = 0; i < tr.length; i++) {
+                let td = tr[i].getElementsByTagName('td')[0];
+                if (td) {
+                    let textValue = td.textContent || td.innerText;
+                    if (textValue.toLowerCase().indexOf(input) > -1) {
+                        tr[i].style.display = ""; 
+                    } else {
+                        tr[i].style.display = "none"; 
+                    }
+                }
+            }
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
+</body>
+</html>
