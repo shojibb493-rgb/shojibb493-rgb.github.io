@@ -1,1 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ডিজিটাল লেনদেন ও হিসাব খাতা</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { margin: 0; background-color: #f0f2f5; color: #333; }
+        
+        /* Header */
+        .header { background-color: #1a237e; color: white; padding: 15px 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header h1 { margin: 0; font-size: 1.5rem; }
+        .header p { margin: 5px 0 0; font-size: 0.9rem; color: #c5cae9; }
 
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
+
+        /* Dashboard Balances */
+        .balance-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .bal-card { padding: 20px; border-radius: 8px; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .bal-card h3 { margin: 0 0 10px 0; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .bal-card p { margin: 0; font-size: 1.6rem; font-weight: bold; }
+        
+        .bg-cash { background: linear-gradient(135deg, #2e7d32, #4caf50); }
+        .bg-bkash { background: linear-gradient(135deg, #e2136e, #f06292); }
+        .bg-nagad { background: linear-gradient(135deg, #f37021, #ff9800); }
+        .bg-rocket { background: linear-gradient(135deg, #8c1596, #ab47bc); }
+        .bg-profit { background: linear-gradient(135deg, #0277bd, #29b6f6); }
+
+        /* Transaction Form */
+        .form-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .form-section h2 { margin-top: 0; color: #1a237e; border-bottom: 2px solid #e8eaf6; padding-bottom: 10px; font-size: 1.2rem; }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .input-group { display: flex; flex-direction: column; }
+        .input-group label { font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; color: #555; }
+        .input-group select, .input-group input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; outline: none; }
+        .input-group select:focus, .input-group input:focus { border-color: #1a237e; }
+        
+        .btn { background: #1a237e; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 1rem; width: 100%; transition: 0.3s; }
+        .btn:hover { background: #283593; }
+
+        /* Settings/Initial Balance */
+        .setup-section { background: #fff3e0; padding: 15px; border-radius: 8px; border-left: 5px solid #ff9800; margin-bottom: 25px; }
+        .setup-section h3 { margin-top: 0; font-size: 1rem; color: #e65100; }
+
+        /* Transaction History */
+        .history-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.95rem; }
+        th { background-color: #f5f5f5; color: #333; }
+        .type-in { color: #2e7d32; font-weight: bold; }
+        .type-out { color: #d32f2f; font-weight: bold; }
+        
+        /* Clear Data Button */
+        .btn-danger { background: #d32f2f; margin-top: 20px; width: auto; padding: 8px 15px; font-size: 0.85rem;}
+        .btn-danger:hover { background: #b71c1c; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>এমএফএস (MFS) ডিজিটাল হিসাব খাতা</h1>
+        <p>বিকাশ, নগদ, রকেট ও ক্যাশ লেনদেন ট্র্যাকার</p>
+    </div>
+
+    <div class="container">
+        
+        <div class="balance-grid">
+            <div class="bal-card bg-cash">
+                <h3>ক্যাশ বাক্স (Cash)</h3>
+                <p>৳ <span id="bal-cash">0</span></p>
+            </div>
+            <div class="bal-card bg-bkash">
+                <h3>বিকাশ (bKash)</h3>
+                <p>৳ <span id="bal-bkash">0</span></p>
+            </div>
+            <div class="bal-card bg-nagad">
+                <h3>নগদ (Nagad)</h3>
+                <p>৳ <span id="bal-nagad">0</span></p>
+            </div>
+            <div class="bal-card bg-rocket">
+                <h3>রকেট (Rocket)</h3>
+                <p>৳ <span id="bal-rocket">0</span></p>
+            </div>
+            <div class="bal-card bg-profit">
+                <h3>আজকের লাভ</h3>
+                <p>৳ <span id="bal-profit">0</span></p>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>নতুন লেনদেন এন্ট্রি করুন</h2>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>অ্যাকাউন্ট / প্ল্যাটফর্ম</label>
+                    <select id="tPlatform">
+                        <option value="bkash">বিকাশ (bKash)</option>
+                        <option value="nagad">নগদ (Nagad)</option>
+                        <option value="rocket">রকেট (Rocket)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>লেনদেনের ধরন</label>
+                    <select id="tType">
+                        <option value="cash_in">ক্যাশ ইন / সেন্ড মানি (Cash In)</option>
+                        <option value="cash_out">ক্যাশ আউট (Cash Out)</option>
+                        <option value="add_money">এজেন্ট ব্যালেন্স লোড (Add Money)</option>
+                        <option value="add_cash">ক্যাশ বাক্সে টাকা রাখা</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>পরিমাণ (৳)</label>
+                    <input type="number" id="tAmount" placeholder="যেমন: 5000" min="1">
+                </div>
+                <div class="input-group">
+                    <label>আপনার লাভ/কমিশন (৳)</label>
+                    <input type="number" id="tProfit" placeholder="যেমন: 15" min="0" value="0">
+                </div>
+            </div>
+            <button class="btn" onclick="processTransaction()">লেনদেন সেভ করুন</button>
+        </div>
+
+        <div class="history-section">
+            <h2>আজকের লেনদেনের বিবরণ</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>সময়</th>
+                        <th>প্ল্যাটফর্ম</th>
+                        <th>লেনদেনের ধরন</th>
+                        <th>পরিমাণ (৳)</th>
+                        <th>লাভ (৳)</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTable">
+                    <tr><td colspan="5" style="text-align:center; color:#999;">কোনো লেনদেন হয়নি</td></tr>
+                </tbody>
+            </table>
+            
+            <button class="btn btn-danger" onclick="resetDay()">দিনের হিসাব রিসেট করুন</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Data Structure
+        let store = JSON.parse(localStorage.getItem('mfsData')) || {
+            balances: { cash: 0, bkash: 0, nagad: 0, rocket: 0, profit: 0 },
+            history: []
+        };
+
+        // Update Dashboard UI
+        function updateDashboard() {
+            document.getElementById('bal-cash').innerText = store.balances.cash.toLocaleString('en-IN');
+            document.getElementById('bal-bkash').innerText = store.balances.bkash.toLocaleString('en-IN');
+            document.getElementById('bal-nagad').innerText = store.balances.nagad.toLocaleString('en-IN');
+            document.getElementById('bal-rocket').innerText = store.balances.rocket.toLocaleString('en-IN');
+            document.getElementById('bal-profit').innerText = store.balances.profit.toLocaleString('en-IN');
+
+            const tbody = document.getElementById('historyTable');
+            tbody.innerHTML = '';
+            
+            if (store.history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999;">কোনো লেনদেন হয়নি</td></tr>';
+                return;
+            }
+
+            // Reverse array to show latest first
+            [...store.history].reverse().forEach(t => {
+                let tr = document.createElement('tr');
+                let typeClass = (t.type === 'cash_in' || t.type === 'add_cash' || t.type === 'add_money') ? 'type-in' : 'type-out';
+                let typeName = '';
+                
+                if(t.type === 'cash_in') typeName = 'ক্যাশ ইন / সেন্ড মানি';
+                else if(t.type === 'cash_out') typeName = 'ক্যাশ আউট';
+                else if(t.type === 'add_money') typeName = 'ব্যালেন্স লোড (B2B)';
+                else if(t.type === 'add_cash') typeName = 'ক্যাশ বক্সে টাকা যুক্ত';
+
+                let platformName = t.platform === 'bkash' ? 'বিকাশ' : (t.platform === 'nagad' ? 'নগদ' : (t.platform === 'rocket' ? 'রকেট' : 'ক্যাশ'));
+
+                tr.innerHTML = `
+                    <td>${t.time}</td>
+                    <td><b>${platformName}</b></td>
+                    <td class="${typeClass}">${typeName}</td>
+                    <td>৳ ${t.amount}</td>
+                    <td>৳ ${t.profit}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Process Transaction Logic
+        function processTransaction() {
+            let platform = document.getElementById('tPlatform').value;
+            let type = document.getElementById('tType').value;
+            let amount = parseFloat(document.getElementById('tAmount').value);
+            let profit = parseFloat(document.getElementById('tProfit').value) || 0;
+
+            if (isNaN(amount) || amount <= 0) {
+                alert("দয়া করে সঠিক পরিমাণ দিন!"); return;
+            }
+
+            // 🟢 হিসাবের ম্যাজিক লজিক 🟢
+            if (type === 'cash_in') {
+                // কাস্টমারকে ডিজিটাল টাকা দিলেন, কাস্টমার আপনাকে ক্যাশ টাকা দিল
+                if (store.balances[platform] < amount) {
+                    alert(`${platform.toUpperCase()}-এ পর্যাপ্ত ব্যালেন্স নেই!`); return;
+                }
+                store.balances[platform] -= amount; // ডিজিটাল ব্যালেন্স কমলো
+                store.balances.cash += amount;      // ক্যাশ বাক্স বাড়লো
+                store.balances.profit += profit;    // লাভ যোগ হলো
+            } 
+            else if (type === 'cash_out') {
+                // কাস্টমার ডিজিটাল টাকা দিল, আপনি তাকে ক্যাশ টাকা দিলেন
+                if (store.balances.cash < amount) {
+                    alert("আপনার ক্যাশ বাক্সে পর্যাপ্ত টাকা নেই!"); return;
+                }
+                store.balances[platform] += amount; // ডিজিটাল ব্যালেন্স বাড়লো
+                store.balances.cash -= amount;      // ক্যাশ বাক্স কমলো
+                store.balances.profit += profit;    // লাভ যোগ হলো
+            }
+            else if (type === 'add_money') {
+                // ব্যাংক বা ডিস্ট্রিবিউটর থেকে ডিজিটাল ব্যালেন্স নিলেন
+                store.balances[platform] += amount;
+            }
+            else if (type === 'add_cash') {
+                // নিজের পকেট থেকে ক্যাশ বাক্সে টাকা রাখলেন
+                store.balances.cash += amount;
+                platform = "cash"; // ইতিহাসের জন্য
+            }
+
+            // Add to history
+            let timeStr = new Date().toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' });
+            store.history.push({ platform, type, amount, profit, time: timeStr });
+
+            // Save & Update
+            localStorage.setItem('mfsData', JSON.stringify(store));
+            updateDashboard();
+
+            // Clear inputs
+            document.getElementById('tAmount').value = '';
+            document.getElementById('tProfit').value = '0';
+        }
+
+        function resetDay() {
+            if(confirm("আপনি কি আজকের সমস্ত লেনদেন ও লাভ মুছে ফেলতে চান? (আপনার মূল ব্যালেন্স ঠিক থাকবে, শুধু লাভ এবং হিস্ট্রি ডিলিট হবে)")) {
+                store.balances.profit = 0;
+                store.history = [];
+                localStorage.setItem('mfsData', JSON.stringify(store));
+                updateDashboard();
+            }
+        }
+
+        // Initialize
+        window.onload = updateDashboard;
+    </script>
+</body>
+</html>
+</body>
+</html>
