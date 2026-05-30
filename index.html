@@ -8,39 +8,33 @@
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { margin: 0; display: flex; background-color: #f4f7f6; color: #333; }
         
-        /* Sidebar */
         .sidebar { width: 260px; background-color: #2e7d32; color: white; height: 100vh; padding: 20px; position: fixed; z-index: 100;}
         .sidebar h2 { border-bottom: 2px solid #4caf50; padding-bottom: 10px; margin-top: 0; font-size: 1.5rem; text-align: center; }
         
-        /* Main Content */
         .main-content { margin-left: 260px; padding: 30px; width: calc(100% - 260px); }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         
-        /* Dashboard Stats */
         .dashboard-stats { display: flex; gap: 15px; margin-bottom: 20px; }
         .stat-box { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); flex: 1; text-align: center; border-left: 5px solid #4caf50; }
         .stat-box h3 { margin: 0; font-size: 1.1rem; color: #555; }
         .stat-box p { margin: 5px 0 0; font-size: 1.8rem; font-weight: bold; color: #2e7d32; }
 
-        /* Add Stock Form */
         .add-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
         .add-section div { flex: 1; min-width: 120px; display: flex; flex-direction: column; }
         .add-section label { font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; color: #555; }
-        .add-section input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+        .add-section input, .add-section select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; outline: none; }
+        .add-section select { cursor: pointer; }
         .btn { background-color: #4caf50; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; height: 40px; }
         .btn:hover { background-color: #388e3c; }
 
-        /* Search Box (Sticky) */
         .search-container { background: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); margin-bottom: 20px; position: sticky; top: 0; z-index: 99; }
         .search-container input { width: 100%; padding: 12px; border: 2px solid #4caf50; border-radius: 6px; font-size: 1.1rem; outline: none; }
         
-        /* Table Styles */
         .table-responsive { width: 100%; overflow-x: auto; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; min-width: 600px;}
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
         th { background-color: #e8f5e9; color: #2e7d32; }
         
-        /* Action Buttons */
         .action-container { display: flex; gap: 5px; flex-wrap: wrap;}
         .btn-sell-strip { background-color: #e53935; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold; }
         .btn-sell-box { background-color: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold; }
@@ -51,7 +45,6 @@
         .price-tag { color: #00796b; font-size: 0.9rem; background: #e0f2f1; padding: 3px 8px; border-radius: 12px; margin-top: 5px; display: inline-block; }
         .loading-text { font-size: 1rem; color: #ff9800; font-weight: bold; display: none; margin-left: 10px; }
 
-        /* 📱 Mobile Responsive View 📱 */
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .sidebar { width: 100%; height: auto; position: relative; padding: 15px; }
@@ -59,15 +52,11 @@
             .sidebar p { margin: 0; }
             .main-content { margin-left: 0; width: 100%; padding: 15px; }
             .header { flex-direction: column; text-align: center; gap: 10px; }
-            
-            /* Dashboard Stats Mobile */
             .dashboard-stats { flex-direction: row; gap: 10px; }
             .stat-box h3 { font-size: 0.9rem; }
             .stat-box p { font-size: 1.2rem; }
-
             .add-section { flex-direction: column; align-items: stretch; }
             .add-section div { min-width: 100%; margin-bottom: 10px; }
-            .add-section label { margin-bottom: 2px; }
             .btn { width: 100%; margin-top: 5px; height: 45px;}
             .search-container { padding: 10px; }
             .action-container { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
@@ -103,23 +92,30 @@
         <div class="add-section">
             <div style="flex: 2;">
                 <label>ওষুধের নাম:</label>
-                <input type="text" id="medName" placeholder="যেমন: Napa Extend">
+                <input type="text" id="medName" placeholder="যেমন: Napa Syrup">
             </div>
             <div>
+                <label>ধরন:</label>
+                <select id="itemType" onchange="toggleForm()">
+                    <option value="tablet">ট্যাবলেট/ক্যাপসুল</option>
+                    <option value="syrup">সিরাপ/ইনজেকশন/পিস</option>
+                </select>
+            </div>
+            <div id="boxPackDiv">
                 <label>১ বক্সে কয় পাতা?</label>
-                <input type="number" id="stripsPerBox" placeholder="যেমন: 10" min="1" value="10">
+                <input type="number" id="stripsPerBox" value="10" min="1">
             </div>
             <div>
-                <label>১ পাতার দাম (৳):</label>
+                <label id="priceLabel">১ পাতার দাম (৳):</label>
                 <input type="number" id="medPrice" placeholder="যেমন: 15" min="0">
             </div>
-            <div>
+            <div id="addBoxDiv">
                 <label>যোগ করুন (বক্স):</label>
                 <input type="number" id="boxQty" placeholder="বক্স" min="0" value="0">
             </div>
             <div>
-                <label>যোগ করুন (পাতা):</label>
-                <input type="number" id="stripQty" placeholder="পাতা" min="0" value="0">
+                <label id="addStripLabel">যোগ করুন (পাতা):</label>
+                <input type="number" id="stripQty" placeholder="পরিমাণ" min="0" value="0">
             </div>
             <button class="btn" onclick="addNewMedicine()">স্টকে যোগ করুন</button>
         </div>
@@ -149,6 +145,25 @@
         // এখানে আপনার বর্তমান গুগল অ্যাপস স্ক্রিপ্ট URL টি বসান
         const scriptURL = 'https://script.google.com/macros/s/AKfycbysteWFX7zT8ifFvIJWy5CnvM_0DIrvFgJ2swE4S1ZcB4kkvC6krr-kZcA9bSzIun49Bw/exec'; 
 
+        // ধরন পরিবর্তনের ফাংশন (ম্যাজিক ট্রিক)
+        function toggleForm() {
+            const type = document.getElementById('itemType').value;
+            if (type === 'syrup') {
+                // সিরাপ হলে বক্সের অপশন হাইড হবে
+                document.getElementById('boxPackDiv').style.display = 'none';
+                document.getElementById('addBoxDiv').style.display = 'none';
+                document.getElementById('priceLabel').innerText = '১ পিসের দাম (৳):';
+                document.getElementById('addStripLabel').innerText = 'মোট যোগ করুন (পিস):';
+                document.getElementById('stripsPerBox').value = '1'; // ব্যাকগ্রাউন্ডে ১ বসবে
+            } else {
+                document.getElementById('boxPackDiv').style.display = 'flex';
+                document.getElementById('addBoxDiv').style.display = 'flex';
+                document.getElementById('priceLabel').innerText = '১ পাতার দাম (৳):';
+                document.getElementById('addStripLabel').innerText = 'যোগ করুন (পাতা):';
+                document.getElementById('stripsPerBox').value = '10';
+            }
+        }
+
         async function loadData() {
             document.getElementById('loadingIndicator').style.display = 'inline';
             const tbody = document.getElementById('stockTableBody');
@@ -158,9 +173,8 @@
                 const data = await response.json();
                 
                 tbody.innerHTML = '';
-                
-                let grandTotalValue = 0; // সর্বমোট মূল্যের হিসাব রাখার ভেরিয়েবল
-                let totalItems = 0; // মোট আইটেম সংখ্যা
+                let grandTotalValue = 0; 
+                let totalItems = 0; 
                 
                 if(data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">কোনো স্টক পাওয়া যায়নি!</td></tr>';
@@ -170,39 +184,56 @@
                         let stripsPerBox = parseInt(item.stripsPerBox) || 10;
                         let pricePerStrip = parseFloat(item.price) || 0;
                         
-                        let pricePerBox = pricePerStrip * stripsPerBox;
-                        
-                        // মোট মূল্যের হিসাব (মোট পাতা * ১ পাতার দাম)
                         grandTotalValue += (totalStrips * pricePerStrip);
                         totalItems++;
+
+                        // চেক করা হচ্ছে এটি সিরাপ নাকি ট্যাবলেট (stripsPerBox 1 হলে সিরাপ)
+                        let isSyrup = (stripsPerBox === 1);
                         
-                        let displayBoxes = Math.floor(totalStrips / stripsPerBox);
-                        let displayStrips = totalStrips % stripsPerBox;
+                        let displayHTML = '';
                         
-                        let stockStyle = totalStrips <= (stripsPerBox * 2) ? "low-stock" : "stock-count";
-                        
+                        if (isSyrup) {
+                            // সিরাপের জন্য ডিসপ্লে
+                            let stockStyle = totalStrips <= 3 ? "low-stock" : "stock-count";
+                            displayHTML = `
+                                <td><b>${item.name}</b></td>
+                                <td>সিরাপ/পিস<br><span class="price-tag">৳${pricePerStrip}/পিস</span></td>
+                                <td class="${stockStyle}">${totalStrips} বোতল/পিস</td>
+                                <td>
+                                    <div class="action-container" style="display:flex;">
+                                        <button class="btn-sell-strip" onclick="updateStock('${item.name}', 'strip', -1)">-১ বিক্রি</button>
+                                        <button class="btn-add-stock" style="background:#4caf50;" onclick="updateStock('${item.name}', 'strip', 1)">+১ রিস্টক</button>
+                                    </div>
+                                </td>
+                            `;
+                        } else {
+                            // ট্যাবলেটের জন্য ডিসপ্লে
+                            let pricePerBox = pricePerStrip * stripsPerBox;
+                            let displayBoxes = Math.floor(totalStrips / stripsPerBox);
+                            let displayStrips = totalStrips % stripsPerBox;
+                            let stockStyle = totalStrips <= (stripsPerBox * 2) ? "low-stock" : "stock-count";
+                            
+                            displayHTML = `
+                                <td><b>${item.name}</b></td>
+                                <td>${stripsPerBox} পাতা/বক্স<br><span class="price-tag">৳${pricePerStrip}/পাতা | ৳${pricePerBox}/বক্স</span></td>
+                                <td class="${stockStyle}">${displayBoxes} বক্স ${displayStrips} পাতা</td>
+                                <td>
+                                    <div class="action-container">
+                                        <button class="btn-sell-strip" onclick="updateStock('${item.name}', 'strip', -1)">-১ পাতা</button>
+                                        <button class="btn-sell-box" onclick="updateStock('${item.name}', 'box', -1)">-১ বক্স</button>
+                                        <button class="btn-add-stock" style="background:#4caf50;" onclick="updateStock('${item.name}', 'strip', 1)">+১ পাতা</button>
+                                        <button class="btn-add-stock" onclick="updateStock('${item.name}', 'box', 1)">+১ বক্স</button>
+                                    </div>
+                                </td>
+                            `;
+                        }
+
                         const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td><b>${item.name}</b></td>
-                            <td>
-                                ${stripsPerBox} পাতা/বক্স<br>
-                                <span class="price-tag">৳${pricePerStrip}/পাতা | ৳${pricePerBox}/বক্স</span>
-                            </td>
-                            <td class="${stockStyle}">${displayBoxes} বক্স ${displayStrips} পাতা</td>
-                            <td>
-                                <div class="action-container">
-                                    <button class="btn-sell-strip" onclick="updateStock('${item.name}', 'strip', -1)">-১ পাতা</button>
-                                    <button class="btn-sell-box" onclick="updateStock('${item.name}', 'box', -1)">-১ বক্স</button>
-                                    <button class="btn-add-stock" style="background:#4caf50;" onclick="updateStock('${item.name}', 'strip', 1)">+১ পাতা</button>
-                                    <button class="btn-add-stock" onclick="updateStock('${item.name}', 'box', 1)">+১ বক্স</button>
-                                </div>
-                            </td>
-                        `;
+                        tr.innerHTML = displayHTML;
                         tbody.appendChild(tr);
                     });
                 }
                 
-                // ড্যাশবোর্ডে মোট হিসাব আপডেট করা (হাজারের কমা সহ)
                 document.getElementById('totalItemsCount').innerText = totalItems;
                 document.getElementById('totalStockValue').innerText = grandTotalValue.toLocaleString('en-IN');
                 
@@ -214,13 +245,15 @@
 
         async function addNewMedicine() {
             const name = document.getElementById('medName').value.trim();
+            const type = document.getElementById('itemType').value;
             const stripsPerBox = document.getElementById('stripsPerBox').value;
             const price = document.getElementById('medPrice').value;
-            const boxQty = document.getElementById('boxQty').value;
+            // সিরাপ হলে বক্স ০ হবে, নাহলে যা ইনপুট দেওয়া হয়েছে তাই
+            const boxQty = type === 'syrup' ? 0 : document.getElementById('boxQty').value;
             const stripQty = document.getElementById('stripQty').value;
 
             if(!name || stripsPerBox <= 0) {
-                alert("দয়া করে ওষুধের নাম এবং সঠিক প্যাকিং সংখ্যা দিন!"); return;
+                alert("দয়া করে ওষুধের নাম এবং সঠিক তথ্য দিন!"); return;
             }
 
             document.getElementById('loadingIndicator').style.display = 'inline';
@@ -230,7 +263,7 @@
             
             document.getElementById('medName').value = '';
             document.getElementById('medPrice').value = '';
-            document.getElementById('boxQty').value = '0';
+            if (type !== 'syrup') document.getElementById('boxQty').value = '0';
             document.getElementById('stripQty').value = '0';
             document.getElementById('searchInput').value = ''; 
             
@@ -239,10 +272,8 @@
 
         async function updateStock(name, unit, amount) {
             document.getElementById('loadingIndicator').style.display = 'inline';
-            
             const url = `${scriptURL}?action=update&name=${encodeURIComponent(name)}&unit=${unit}&amount=${amount}`;
             await fetch(url);
-            
             loadData();
         }
 
