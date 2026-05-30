@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>সবুজ মেডিকেল হল - খুচরা ইনভেন্টরি ও বাকি খাতা</title>
+    <title>সবুজ মেডিকেল হল - খুচরা ইনভেন্টরি ও পিওএস</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { margin: 0; display: flex; background-color: #f4f7f6; color: #333; }
@@ -66,8 +66,8 @@
         @media (max-width: 900px) {
             body { flex-direction: column; }
             .sidebar { width: 100%; height: auto; position: relative; padding: 15px; }
-            .sidebar-menu { flex-direction: row; flex-wrap: wrap; margin-top: 10px; }
-            .menu-btn { flex: 1; text-align: center; padding: 8px; font-size: 0.9rem; }
+            .sidebar-menu { flex-direction: row; flex-wrap: wrap; margin-top: 10px; gap: 5px;}
+            .menu-btn { flex: 1; text-align: center; padding: 8px; font-size: 0.85rem; }
             .main-content { margin-left: 0; width: 100%; padding: 15px; }
             .pos-grid { grid-template-columns: 1fr; }
             .dashboard-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -78,10 +78,11 @@
 
     <div class="sidebar">
         <h2>সবুজ মেডিকেল হল</h2>
-        <p style="text-align: center;">খুচরা বিক্রয় ও বাকি খাতা</p>
+        <p style="text-align: center;">খুচরা বিক্রয় ও ম্যানেজমেন্ট</p>
         <div class="sidebar-menu">
-            <button class="menu-btn active" id="tab-pos" onclick="switchTab('pos')">🛒 স্টক ও পওএস (POS)</button>
-            <button class="menu-btn" id="tab-dues" onclick="switchTab('dues')">📒 বাকি খাতা (Ledger)</button>
+            <button class="menu-btn active" id="tab-pos" onclick="switchTab('pos')">🛒 পওএস (POS)</button>
+            <button class="menu-btn" id="tab-sales" onclick="switchTab('sales')">📊 আজকের বিক্রি</button>
+            <button class="menu-btn" id="tab-dues" onclick="switchTab('dues')">📒 বাকি খাতা</button>
         </div>
     </div>
 
@@ -95,16 +96,16 @@
             <div class="stat-box"><h3>মোট আইটেম</h3><p id="totalItemsCount">0</p></div>
             <div class="stat-box"><h3>স্টকের মোট মূল্য</h3><p>৳ <span id="totalStockValue">0</span></p></div>
             <div class="stat-box cash-profit"><h3>আজকের নগদ লাভ</h3><p>৳ <span id="todayRealProfit">0</span></p></div>
-            <div class="stat-box cash-profit" style="border-left-color: #e91e63; background-color: #fce4ec;"><h3 style="color:#c2185b;">সর্বমোট অর্জিত লাভ</h3><p style="color: #c2185b;">৳ <span id="totalRealProfit">0</span></p></div>
+            <div class="stat-box cash-profit" style="border-left-color: #e91e63; background-color: #fce4ec;"><h3 style="color:#c2185b;">সর্বমোট লাভ</h3><p style="color: #c2185b;">৳ <span id="totalRealProfit">0</span></p></div>
         </div>
 
         <div id="pos-view">
             <div class="add-section">
                 <div style="flex: 2;"><label>ওষুধের নাম:</label><input type="text" id="medName" placeholder="যেমন: Napa Extend"></div>
-                <div><label>ধরন:</label><select id="itemType" onchange="toggleForm()"><option value="tablet">ট্যাবলেট/ক্যাপসুল</option><option value="syrup">সিরাপ/পিস</option></select></div>
-                <div id="boxPackDiv"><label>১ বক্সে কয় পাতা?</label><input type="number" id="stripsPerBox" value="10" min="1"></div>
-                <div><label id="buyPriceLabel">কেনা দাম (৳):</label><input type="number" id="medBuyingPrice" placeholder="যেমন: 12"></div>
-                <div><label id="priceLabel">বিক্রি দাম (৳):</label><input type="number" id="medPrice" placeholder="যেমন: 15"></div>
+                <div><label>ধরন:</label><select id="itemType" onchange="toggleForm()"><option value="tablet">ট্যাবলেট</option><option value="syrup">সিরাপ/পিস</option></select></div>
+                <div id="boxPackDiv"><label>১ বক্সে পাতা?</label><input type="number" id="stripsPerBox" value="10" min="1"></div>
+                <div><label id="buyPriceLabel">কেনা দাম (৳):</label><input type="number" id="medBuyingPrice" placeholder="12"></div>
+                <div><label id="priceLabel">বিক্রি দাম (৳):</label><input type="number" id="medPrice" placeholder="15"></div>
                 <div id="addBoxDiv"><label>বক্স যোগ:</label><input type="number" id="boxQty" value="0"></div>
                 <div><label id="addStripLabel">খুচরা পাতা:</label><input type="number" id="stripQty" value="0"></div>
                 <div style="min-width: 80px;"><button class="btn" onclick="addNewMedicine()">যোগ</button></div>
@@ -122,8 +123,8 @@
                 </div>
 
                 <div class="cart-container">
-                    <h3 style="margin-top: 0; color: #c2185b; border-bottom: 2px solid #e91e63; padding-bottom: 5px;">🛒 কাস্টমার ক্যাশ বিল</h3>
-                    <input type="text" id="custName" class="cart-input" placeholder="কাস্টমারের নাম (বাকি থাকলে অবশ্যই দিন)">
+                    <h3 style="margin-top: 0; color: #c2185b; border-bottom: 2px solid #e91e63; padding-bottom: 5px;">🛒 কাস্টমার বিল</h3>
+                    <input type="text" id="custName" class="cart-input" placeholder="কাস্টমারের নাম (বাকি থাকলে দিন)">
                     <input type="text" id="custMobile" class="cart-input" placeholder="মোবাইল নাম্বার">
                     
                     <table style="width: 100%; margin-top: 10px;" class="cart-table">
@@ -132,7 +133,7 @@
                     </table>
                     
                     <div class="cart-total-section" style="border-top: 2px dashed #ccc; padding-top: 10px; color:#c2185b;"><span>মোট বিল:</span> ৳<span id="cartGrandTotal">0.00</span></div>
-                    <div class="cart-total-section"><span>নগদ জমা (৳):</span> <input type="number" id="cashPaid" value="0" onkeyup="calculateDue()" style="width:90px; padding:4px; text-align:right;"></div>
+                    <div class="cart-total-section"><span>নগদ জমা:</span> <input type="number" id="cashPaid" value="0" onkeyup="calculateDue()" style="width:90px; padding:4px; text-align:right;"></div>
                     <div class="cart-total-section" style="color: #d84315;"><span>বাকি টাকা:</span> ৳<span id="cartDueTotal">0.00</span></div>
                     
                     <button class="btn" style="background: #e91e63; margin-top: 15px; height: 42px;" onclick="processCheckout()">🧾 কনফার্ম ও মেমো প্রিন্ট</button>
@@ -140,11 +141,20 @@
             </div>
         </div>
 
-        <div id="dues-view" style="display: none;">
-            <div class="search-container"><input type="text" id="dueSearchInput" onkeyup="searchDues()" placeholder="🔍 কাস্টমারের নাম বা মোবাইল দিয়ে বাকি খাতা খুঁজুন..."></div>
+        <div id="sales-view" style="display: none;">
             <div class="table-responsive">
                 <table>
-                    <thead><tr style="background: #ffe0b2; color: #e65100;"><th>কাস্টমারের নাম</th><th>মোবাইল নাম্বার</th><th>বকেয়া টাকা (Due)</th><th>অ্যাকশন</th></tr></thead>
+                    <thead><tr style="background: #e1bee7; color: #4a148c;"><th>সময়</th><th>ওষুধের নাম</th><th>পরিমাণ (পাতা/পিস)</th><th>আপনার লাভ</th></tr></thead>
+                    <tbody id="salesTableBody"><tr><td colspan="4" style="text-align: center;">ডাটা লোড হচ্ছে...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="dues-view" style="display: none;">
+            <div class="search-container"><input type="text" id="dueSearchInput" onkeyup="searchDues()" placeholder="🔍 কাস্টমারের নাম বা মোবাইল খুঁজুন..."></div>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr style="background: #ffe0b2; color: #e65100;"><th>কাস্টমারের নাম</th><th>মোবাইল নাম্বার</th><th>বকেয়া টাকা</th><th>অ্যাকশন</th></tr></thead>
                     <tbody id="duesTableBody"><tr><td colspan="4" style="text-align: center;">বাকি খাতা লোড হচ্ছে...</td></tr></tbody>
                 </table>
             </div>
@@ -153,7 +163,7 @@
 
     <div id="invoice-print-area">
         <h2 style="text-align: center; margin: 0;">সবুজ মেডিকেল হল</h2>
-        <p style="text-align: center; margin: 2px 0; font-size: 11px;">প্রো: মো: আবু সাইদ (সবুজ) | মল্লিকবাড়ি,ভালুকা,ময়মনসিংহ</p>
+        <p style="text-align: center; margin: 2px 0; font-size: 11px;">প্রো: মো: সবুজ্জামান (সবুজ) | বাংলাদেশ</p>
         <p style="border-bottom: 1px dashed #000; margin: 5px 0;"></p>
         <p style="margin: 2px 0; font-size: 11px;" id="inv-cust-info"></p>
         <p style="margin: 2px 0; font-size: 11px;" id="inv-date"></p>
@@ -172,21 +182,29 @@
 
     <script>
         // ⚠️ আপনার নতুন গুগল অ্যাপস স্ক্রিপ্ট Web App URL টি এখানে বসান ⚠️
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxNdqnyNpBWh9cFJP5Oslm_SV01mZSsWjwxP4iG_kHeYdPuGKk6Ojo_cy4lzSNsm_thXg/exec'; 
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzouES58mEF1-gCaYfQdVQCtSoarTf0yZxJd5vsUwErRM1B6rOIHuTE8ibzuuZgiyC43g/exec'; 
         let globalInventory = [];
         let globalDues = [];
+        let globalSales = [];
         let currentCart = [];
 
         function switchTab(tab) {
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('pos-view').style.display = 'none';
+            document.getElementById('sales-view').style.display = 'none';
+            document.getElementById('dues-view').style.display = 'none';
+
             if(tab === 'pos') {
                 document.getElementById('tab-pos').classList.add('active');
                 document.getElementById('pos-view').style.display = 'block';
-                document.getElementById('dues-view').style.display = 'none';
                 document.getElementById('page-title').innerText = 'ডিজিটাল ইনভেন্টরি ও পিওএস (POS)';
+            } else if(tab === 'sales') {
+                document.getElementById('tab-sales').classList.add('active');
+                document.getElementById('sales-view').style.display = 'block';
+                document.getElementById('page-title').innerText = '📊 আজকের বিক্রির বিস্তারিত তালিকা';
+                renderSalesTable();
             } else {
                 document.getElementById('tab-dues').classList.add('active');
-                document.getElementById('pos-view').style.display = 'none';
                 document.getElementById('dues-view').style.display = 'block';
                 document.getElementById('page-title').innerText = '📒 কাস্টমার বকেয়া খাতা (Ledger)';
                 renderDuesTable();
@@ -213,6 +231,7 @@
                 const resData = await response.json();
                 globalInventory = resData.inventory;
                 globalDues = resData.dues || [];
+                globalSales = resData.todaySalesList || []; // আজকের সেলস লিস্ট
                 
                 const tbody = document.getElementById('stockTableBody');
                 tbody.innerHTML = '';
@@ -256,11 +275,33 @@
                 document.getElementById('totalStockValue').innerText = grandTotalValue.toLocaleString('en-IN');
                 document.getElementById('todayRealProfit').innerText = (resData.todaySalesProfit || 0).toLocaleString('en-IN');
                 document.getElementById('totalRealProfit').innerText = (resData.totalSalesProfit || 0).toLocaleString('en-IN');
+                
                 if(document.getElementById('dues-view').style.display === 'block') renderDuesTable();
+                if(document.getElementById('sales-view').style.display === 'block') renderSalesTable();
+                
             } catch (e) {
                 console.error(e);
             }
             document.getElementById('loadingIndicator').style.display = 'none';
+        }
+
+        // 🟢 আজকের বিক্রির টেবিল রেন্ডার করা 🟢
+        function renderSalesTable() {
+            const tbody = document.getElementById('salesTableBody');
+            tbody.innerHTML = '';
+            if(globalSales.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px;">আজ এখনো কোনো বিক্রি হয়নি!</td></tr>'; return;
+            }
+            globalSales.forEach(sale => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="color:#555; font-size:0.9rem;">${sale.time}</td>
+                    <td><b>${sale.name}</b></td>
+                    <td>${sale.qty}</td>
+                    <td style="color:#d84315; font-weight:bold;">৳ ${sale.profit.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         function addToCart(name, unit, unitPrice) {
@@ -317,7 +358,6 @@
                 let response = await fetch(url);
                 let result = await response.json();
                 if (result.status === "success") {
-                    // মেমো প্রিন্ট ডাটা সাজানো
                     document.getElementById('inv-date').innerText = "তারিখ: " + new Date().toLocaleString('bn-BD');
                     document.getElementById('inv-cust-info').innerHTML = cName ? `কাস্টমার: <b>${cName}</b><br>মোবাইল: ${cMobile}` : "কাস্টমার: খুচরা ক্রেতা";
                     
@@ -332,9 +372,8 @@
                     document.getElementById('printCashPaid').innerText = paid;
                     document.getElementById('printDueTotal').innerText = due > 0 ? due : 0;
                     
-                    window.print(); // ক্যাশ মেমো প্রিন্ট ডায়ালগ ওপেন
+                    window.print();
                     
-                    // রিসেট ফর্ম
                     currentCart = []; document.getElementById('custName').value = ''; document.getElementById('custMobile').value = ''; document.getElementById('cashPaid').value = '0';
                     renderCart(); loadData();
                 }
@@ -342,7 +381,6 @@
             document.getElementById('loadingIndicator').style.display = 'none';
         }
 
-        // 🟢 বাকি খাতার টেবিল রেন্ডার করা 🟢
         function renderDuesTable() {
             const tbody = document.getElementById('duesTableBody');
             tbody.innerHTML = '';
@@ -361,7 +399,6 @@
             });
         }
 
-        // 🟢 বকেয়া টাকা কালেকশন করা 🟢
         async function collectDue(name, mobile, currentAmount) {
             let amount = prompt(`${name}-এর মোট বকেয়া ৳${currentAmount}। কত টাকা জমা নিতে চান?`, currentAmount);
             if(amount === null || isNaN(amount) || parseFloat(amount) <= 0) return;
