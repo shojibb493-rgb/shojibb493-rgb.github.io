@@ -16,6 +16,12 @@
         .main-content { margin-left: 260px; padding: 30px; width: calc(100% - 260px); }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         
+        /* Dashboard Stats */
+        .dashboard-stats { display: flex; gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); flex: 1; text-align: center; border-left: 5px solid #4caf50; }
+        .stat-box h3 { margin: 0; font-size: 1.1rem; color: #555; }
+        .stat-box p { margin: 5px 0 0; font-size: 1.8rem; font-weight: bold; color: #2e7d32; }
+
         /* Add Stock Form */
         .add-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
         .add-section div { flex: 1; min-width: 120px; display: flex; flex-direction: column; }
@@ -24,18 +30,9 @@
         .btn { background-color: #4caf50; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; height: 40px; }
         .btn:hover { background-color: #388e3c; }
 
-        /* Search Box */
-        /* Search Box (উপরে আটকে থাকার জন্য Sticky করা হয়েছে) */
-.search-container { 
-    background: white; 
-    padding: 15px 20px; 
-    border-radius: 8px; 
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15); 
-    margin-bottom: 20px; 
-    position: sticky; 
-    top: 0; 
-    z-index: 99; 
-}
+        /* Search Box (Sticky) */
+        .search-container { background: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); margin-bottom: 20px; position: sticky; top: 0; z-index: 99; }
+        .search-container input { width: 100%; padding: 12px; border: 2px solid #4caf50; border-radius: 6px; font-size: 1.1rem; outline: none; }
         
         /* Table Styles */
         .table-responsive { width: 100%; overflow-x: auto; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -54,7 +51,7 @@
         .price-tag { color: #00796b; font-size: 0.9rem; background: #e0f2f1; padding: 3px 8px; border-radius: 12px; margin-top: 5px; display: inline-block; }
         .loading-text { font-size: 1rem; color: #ff9800; font-weight: bold; display: none; margin-left: 10px; }
 
-        /* 📱 Mobile Responsive View (ম্যাজিকটা এখানে!) 📱 */
+        /* 📱 Mobile Responsive View 📱 */
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .sidebar { width: 100%; height: auto; position: relative; padding: 15px; }
@@ -62,6 +59,12 @@
             .sidebar p { margin: 0; }
             .main-content { margin-left: 0; width: 100%; padding: 15px; }
             .header { flex-direction: column; text-align: center; gap: 10px; }
+            
+            /* Dashboard Stats Mobile */
+            .dashboard-stats { flex-direction: row; gap: 10px; }
+            .stat-box h3 { font-size: 0.9rem; }
+            .stat-box p { font-size: 1.2rem; }
+
             .add-section { flex-direction: column; align-items: stretch; }
             .add-section div { min-width: 100%; margin-bottom: 10px; }
             .add-section label { margin-bottom: 2px; }
@@ -84,6 +87,17 @@
         <div class="header">
             <h1 style="color: #2e7d32; margin: 0; font-size: 1.5rem;">খুচরা স্টক ও মূল্য তালিকা</h1>
             <span id="loadingIndicator" class="loading-text">⏳ আপডেট হচ্ছে...</span>
+        </div>
+
+        <div class="dashboard-stats">
+            <div class="stat-box">
+                <h3>মোট আইটেম সংখ্যা</h3>
+                <p id="totalItemsCount">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>সর্বমোট মালের মূল্য</h3>
+                <p>৳ <span id="totalStockValue">0</span></p>
+            </div>
         </div>
 
         <div class="add-section">
@@ -132,8 +146,8 @@
     </div>
 
     <script>
-        // আপনার দেওয়া গুগল অ্যাপস স্ক্রিপ্ট URL
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyxHalK8JaaUyAyzGXjv-o8GAgeetGyj0E8HGsrJkHY4ljR1mU0-aBHrelE7tsBMW1rHQ/exec'; 
+        // এখানে আপনার বর্তমান গুগল অ্যাপস স্ক্রিপ্ট URL টি বসান
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbysteWFX7zT8ifFvIJWy5CnvM_0DIrvFgJ2swE4S1ZcB4kkvC6krr-kZcA9bSzIun49Bw/exec'; 
 
         async function loadData() {
             document.getElementById('loadingIndicator').style.display = 'inline';
@@ -144,6 +158,10 @@
                 const data = await response.json();
                 
                 tbody.innerHTML = '';
+                
+                let grandTotalValue = 0; // সর্বমোট মূল্যের হিসাব রাখার ভেরিয়েবল
+                let totalItems = 0; // মোট আইটেম সংখ্যা
+                
                 if(data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">কোনো স্টক পাওয়া যায়নি!</td></tr>';
                 } else {
@@ -151,7 +169,12 @@
                         let totalStrips = parseInt(item.totalStrips) || 0;
                         let stripsPerBox = parseInt(item.stripsPerBox) || 10;
                         let pricePerStrip = parseFloat(item.price) || 0;
+                        
                         let pricePerBox = pricePerStrip * stripsPerBox;
+                        
+                        // মোট মূল্যের হিসাব (মোট পাতা * ১ পাতার দাম)
+                        grandTotalValue += (totalStrips * pricePerStrip);
+                        totalItems++;
                         
                         let displayBoxes = Math.floor(totalStrips / stripsPerBox);
                         let displayStrips = totalStrips % stripsPerBox;
@@ -178,6 +201,11 @@
                         tbody.appendChild(tr);
                     });
                 }
+                
+                // ড্যাশবোর্ডে মোট হিসাব আপডেট করা (হাজারের কমা সহ)
+                document.getElementById('totalItemsCount').innerText = totalItems;
+                document.getElementById('totalStockValue').innerText = grandTotalValue.toLocaleString('en-IN');
+                
             } catch (e) {
                 tbody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">ডাটা লোড করা যায়নি। ইন্টারনেট চেক করুন!</td></tr>';
             }
