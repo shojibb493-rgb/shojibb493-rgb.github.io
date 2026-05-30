@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>সবুজ মেডিকেল হল - খুচরা ইনভেন্টরি</title>
+    <title>সবুজ মেডিকেল হল - খুচরা ইনভেন্টরি ও লাভ</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { margin: 0; display: flex; background-color: #f4f7f6; color: #333; }
@@ -14,10 +14,13 @@
         .main-content { margin-left: 260px; padding: 30px; width: calc(100% - 260px); }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         
-        .dashboard-stats { display: flex; gap: 15px; margin-bottom: 20px; }
-        .stat-box { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); flex: 1; text-align: center; border-left: 5px solid #4caf50; }
-        .stat-box h3 { margin: 0; font-size: 1.1rem; color: #555; }
-        .stat-box p { margin: 5px 0 0; font-size: 1.8rem; font-weight: bold; color: #2e7d32; }
+        /* Dashboard Stats */
+        .dashboard-stats { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .stat-box { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); flex: 1; min-width: 150px; text-align: center; border-left: 5px solid #4caf50; }
+        .stat-box.profit { border-left-color: #ff9800; background-color: #fff9f0; } /* লাভের জন্য আলাদা কালার */
+        .stat-box h3 { margin: 0; font-size: 1rem; color: #555; }
+        .stat-box p { margin: 5px 0 0; font-size: 1.5rem; font-weight: bold; color: #2e7d32; }
+        .stat-box.profit p { color: #e65100; }
 
         .add-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
         .add-section div { flex: 1; min-width: 120px; display: flex; flex-direction: column; }
@@ -43,6 +46,7 @@
         .stock-count { font-weight: bold; color: #2e7d32; font-size: 1.1rem;}
         .low-stock { color: #d32f2f; font-weight: bold; font-size: 1.1rem;}
         .price-tag { color: #00796b; font-size: 0.9rem; background: #e0f2f1; padding: 3px 8px; border-radius: 12px; margin-top: 5px; display: inline-block; }
+        .profit-tag { color: #e65100; font-size: 0.85rem; font-weight: bold; }
         .loading-text { font-size: 1rem; color: #ff9800; font-weight: bold; display: none; margin-left: 10px; }
 
         @media (max-width: 768px) {
@@ -53,7 +57,7 @@
             .main-content { margin-left: 0; width: 100%; padding: 15px; }
             .header { flex-direction: column; text-align: center; gap: 10px; }
             .dashboard-stats { flex-direction: row; gap: 10px; }
-            .stat-box h3 { font-size: 0.9rem; }
+            .stat-box h3 { font-size: 0.85rem; }
             .stat-box p { font-size: 1.2rem; }
             .add-section { flex-direction: column; align-items: stretch; }
             .add-section div { min-width: 100%; margin-bottom: 10px; }
@@ -80,12 +84,16 @@
 
         <div class="dashboard-stats">
             <div class="stat-box">
-                <h3>মোট আইটেম সংখ্যা</h3>
+                <h3>মোট আইটেম</h3>
                 <p id="totalItemsCount">0</p>
             </div>
             <div class="stat-box">
-                <h3>সর্বমোট মালের মূল্য</h3>
+                <h3>মালের বিক্রি মূল্য</h3>
                 <p>৳ <span id="totalStockValue">0</span></p>
+            </div>
+            <div class="stat-box profit">
+                <h3>মোট সম্ভাব্য লাভ</h3>
+                <p>৳ <span id="totalExpectedProfit">0</span></p>
             </div>
         </div>
 
@@ -106,15 +114,19 @@
                 <input type="number" id="stripsPerBox" value="10" min="1">
             </div>
             <div>
-                <label id="priceLabel">১ পাতার দাম (৳):</label>
+                <label id="buyPriceLabel">কেনা দাম (৳):</label>
+                <input type="number" id="medBuyingPrice" placeholder="যেমন: 12" min="0">
+            </div>
+            <div>
+                <label id="priceLabel">বিক্রি দাম (৳):</label>
                 <input type="number" id="medPrice" placeholder="যেমন: 15" min="0">
             </div>
             <div id="addBoxDiv">
-                <label>যোগ করুন (বক্স):</label>
+                <label>বক্স যোগ করুন:</label>
                 <input type="number" id="boxQty" placeholder="বক্স" min="0" value="0">
             </div>
             <div>
-                <label id="addStripLabel">যোগ করুন (পাতা):</label>
+                <label id="addStripLabel">খুচরা যোগ করুন:</label>
                 <input type="number" id="stripQty" placeholder="পরিমাণ" min="0" value="0">
             </div>
             <button class="btn" onclick="addNewMedicine()">স্টকে যোগ করুন</button>
@@ -129,7 +141,7 @@
                 <thead>
                     <tr>
                         <th>ওষুধের নাম</th>
-                        <th>প্যাকিং ও মূল্য</th>
+                        <th>কেনা ও বিক্রি মূল্য</th>
                         <th>বর্তমান মোট স্টক</th>
                         <th>খুচরা বিক্রয় / রিস্টক</th>
                     </tr>
@@ -142,24 +154,24 @@
     </div>
 
     <script>
-        // এখানে আপনার বর্তমান গুগল অ্যাপস স্ক্রিপ্ট URL টি বসান
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbysteWFX7zT8ifFvIJWy5CnvM_0DIrvFgJ2swE4S1ZcB4kkvC6krr-kZcA9bSzIun49Bw/exec'; 
+        // এখানে আপনার নতুন গুগল অ্যাপস স্ক্রিপ্ট URL টি বসান
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxjLw5-RoF0XBbV9mhu3zs7D5pkx0UsloathIe0POrlY5B372nTrEgpkYfjKC92jupMZQ/exec'; 
 
-        // ধরন পরিবর্তনের ফাংশন (ম্যাজিক ট্রিক)
         function toggleForm() {
             const type = document.getElementById('itemType').value;
             if (type === 'syrup') {
-                // সিরাপ হলে বক্সের অপশন হাইড হবে
                 document.getElementById('boxPackDiv').style.display = 'none';
                 document.getElementById('addBoxDiv').style.display = 'none';
-                document.getElementById('priceLabel').innerText = '১ পিসের দাম (৳):';
-                document.getElementById('addStripLabel').innerText = 'মোট যোগ করুন (পিস):';
-                document.getElementById('stripsPerBox').value = '1'; // ব্যাকগ্রাউন্ডে ১ বসবে
+                document.getElementById('buyPriceLabel').innerText = '১ পিসের কেনা দাম:';
+                document.getElementById('priceLabel').innerText = '১ পিসের বিক্রি দাম:';
+                document.getElementById('addStripLabel').innerText = 'মোট পিস যোগ করুন:';
+                document.getElementById('stripsPerBox').value = '1'; 
             } else {
                 document.getElementById('boxPackDiv').style.display = 'flex';
                 document.getElementById('addBoxDiv').style.display = 'flex';
-                document.getElementById('priceLabel').innerText = '১ পাতার দাম (৳):';
-                document.getElementById('addStripLabel').innerText = 'যোগ করুন (পাতা):';
+                document.getElementById('buyPriceLabel').innerText = '১ পাতার কেনা দাম:';
+                document.getElementById('priceLabel').innerText = '১ পাতার বিক্রি দাম:';
+                document.getElementById('addStripLabel').innerText = 'খুচরা পাতা যোগ করুন:';
                 document.getElementById('stripsPerBox').value = '10';
             }
         }
@@ -174,6 +186,7 @@
                 
                 tbody.innerHTML = '';
                 let grandTotalValue = 0; 
+                let grandTotalProfit = 0; // মোট লাভের হিসাব
                 let totalItems = 0; 
                 
                 if(data.length === 0) {
@@ -183,21 +196,22 @@
                         let totalStrips = parseInt(item.totalStrips) || 0;
                         let stripsPerBox = parseInt(item.stripsPerBox) || 10;
                         let pricePerStrip = parseFloat(item.price) || 0;
+                        let buyingPricePerStrip = parseFloat(item.buyingPrice) || 0; // কেনা দাম
+                        
+                        let itemProfitPerStrip = pricePerStrip - buyingPricePerStrip; // প্রতি পাতায় লাভ
                         
                         grandTotalValue += (totalStrips * pricePerStrip);
+                        grandTotalProfit += (totalStrips * itemProfitPerStrip); // মোট সম্ভাব্য লাভ
                         totalItems++;
 
-                        // চেক করা হচ্ছে এটি সিরাপ নাকি ট্যাবলেট (stripsPerBox 1 হলে সিরাপ)
                         let isSyrup = (stripsPerBox === 1);
-                        
                         let displayHTML = '';
                         
                         if (isSyrup) {
-                            // সিরাপের জন্য ডিসপ্লে
                             let stockStyle = totalStrips <= 3 ? "low-stock" : "stock-count";
                             displayHTML = `
-                                <td><b>${item.name}</b></td>
-                                <td>সিরাপ/পিস<br><span class="price-tag">৳${pricePerStrip}/পিস</span></td>
+                                <td><b>${item.name}</b><br><span class="profit-tag">প্রতি পিসে লাভ: ৳${itemProfitPerStrip.toFixed(2)}</span></td>
+                                <td>কেনা: ৳${buyingPricePerStrip} <br> বিক্রি: ৳${pricePerStrip}</td>
                                 <td class="${stockStyle}">${totalStrips} বোতল/পিস</td>
                                 <td>
                                     <div class="action-container" style="display:flex;">
@@ -207,15 +221,20 @@
                                 </td>
                             `;
                         } else {
-                            // ট্যাবলেটের জন্য ডিসপ্লে
                             let pricePerBox = pricePerStrip * stripsPerBox;
+                            let buyingPricePerBox = buyingPricePerStrip * stripsPerBox;
+                            let itemProfitPerBox = itemProfitPerStrip * stripsPerBox;
+                            
                             let displayBoxes = Math.floor(totalStrips / stripsPerBox);
                             let displayStrips = totalStrips % stripsPerBox;
                             let stockStyle = totalStrips <= (stripsPerBox * 2) ? "low-stock" : "stock-count";
                             
                             displayHTML = `
-                                <td><b>${item.name}</b></td>
-                                <td>${stripsPerBox} পাতা/বক্স<br><span class="price-tag">৳${pricePerStrip}/পাতা | ৳${pricePerBox}/বক্স</span></td>
+                                <td><b>${item.name}</b><br><span class="profit-tag">প্রতি বক্সে লাভ: ৳${itemProfitPerBox.toFixed(2)}</span></td>
+                                <td>
+                                    <span style="color:#555; font-size:0.9rem;">কেনা: ৳${buyingPricePerStrip}/পাতা | ৳${buyingPricePerBox}/বক্স</span><br>
+                                    <span class="price-tag">বিক্রি: ৳${pricePerStrip}/পাতা | ৳${pricePerBox}/বক্স</span>
+                                </td>
                                 <td class="${stockStyle}">${displayBoxes} বক্স ${displayStrips} পাতা</td>
                                 <td>
                                     <div class="action-container">
@@ -236,6 +255,7 @@
                 
                 document.getElementById('totalItemsCount').innerText = totalItems;
                 document.getElementById('totalStockValue').innerText = grandTotalValue.toLocaleString('en-IN');
+                document.getElementById('totalExpectedProfit').innerText = grandTotalProfit.toLocaleString('en-IN'); // লাভের ড্যাশবোর্ড আপডেট
                 
             } catch (e) {
                 tbody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">ডাটা লোড করা যায়নি। ইন্টারনেট চেক করুন!</td></tr>';
@@ -247,8 +267,8 @@
             const name = document.getElementById('medName').value.trim();
             const type = document.getElementById('itemType').value;
             const stripsPerBox = document.getElementById('stripsPerBox').value;
+            const buyingPrice = document.getElementById('medBuyingPrice').value; // কেনা দাম
             const price = document.getElementById('medPrice').value;
-            // সিরাপ হলে বক্স ০ হবে, নাহলে যা ইনপুট দেওয়া হয়েছে তাই
             const boxQty = type === 'syrup' ? 0 : document.getElementById('boxQty').value;
             const stripQty = document.getElementById('stripQty').value;
 
@@ -258,11 +278,12 @@
 
             document.getElementById('loadingIndicator').style.display = 'inline';
             
-            const url = `${scriptURL}?action=add&name=${encodeURIComponent(name)}&stripsPerBox=${stripsPerBox}&price=${price}&boxQty=${boxQty}&stripQty=${stripQty}`;
+            const url = `${scriptURL}?action=add&name=${encodeURIComponent(name)}&stripsPerBox=${stripsPerBox}&price=${price}&buyingPrice=${buyingPrice}&boxQty=${boxQty}&stripQty=${stripQty}`;
             await fetch(url);
             
             document.getElementById('medName').value = '';
             document.getElementById('medPrice').value = '';
+            document.getElementById('medBuyingPrice').value = '';
             if (type !== 'syrup') document.getElementById('boxQty').value = '0';
             document.getElementById('stripQty').value = '0';
             document.getElementById('searchInput').value = ''; 
